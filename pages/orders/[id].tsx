@@ -10,7 +10,7 @@ import { ShopLayout } from "../../components/layouts"
 import { dbOrders } from '../../database';
 import { IOrder } from '../../interfaces';
 import { countries } from '../../utils';
-import { tesloApi } from '../../api';
+import { tesloApi } from '../../axiosApi';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 

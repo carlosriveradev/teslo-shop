@@ -6,7 +6,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 import { AuthContext, authReducer} from './';
-import { tesloApi } from '../../api';
+import { tesloApi } from '../../axiosApi';
 import { IUser } from '../../interfaces';
 
 export interface AuthState {
