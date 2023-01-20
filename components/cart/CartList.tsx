@@ -1,59 +1,79 @@
+import { FC, useContext } from 'react';
 import NextLink from 'next/link';
 import { Box, Button, CardActionArea, CardMedia, Grid, Link, Typography } from '@mui/material';
-import { initialData } from '../../database/products';
+
 import { ItemCounter } from '../ui';
-import { FC } from 'react';
+import { CartContext } from '../../context';
+import { ICartProduct, IOrderItem } from '../../interfaces';
 
-
-const productsInCart = [
-    initialData.products[0],
-    initialData.products[2],
-    initialData.products[3],
-]
 
 interface Props {
     editable?: boolean;
+    products?: IOrderItem[];
 }
 
+export const CartList: FC<Props> = ({ editable = false, products }) => {
 
-export const CartList: FC<Props> = ({editable=false}) => {
+    const { cart, updateCartQuantity, removeCartProduct } = useContext(CartContext);
+
+    const onNewCartQuantityValue = (product: ICartProduct, newQuantityValue: number) => {
+        product.quantity = newQuantityValue;
+        updateCartQuantity( product );
+    }
+
+    const productsToShow = products ? products : cart;
+
+
     return (
         <>
             {
-                productsInCart.map(product => (
-                    <Grid container spacing={2} key={product.slug} sx={{mb:1}} >
+                productsToShow.map( product => (
+                    <Grid container spacing={2} key={ product.slug + product.size } sx={{ mb:1 }}>
                         <Grid item xs={3}>
                             {/* TODO: llevar a la página del producto */}
-                            <NextLink href="/product/slug" passHref>
+                            <NextLink href={`/product/${ product.slug }`} passHref>
                                 <Link>
                                     <CardActionArea>
                                         <CardMedia 
-                                            image={`/products/${product.images[0]}`}
+                                            image={product.images}
                                             component='img'
-                                            sx={{ borderRadius: '5px'}}
+                                            sx={{ borderRadius: '5px' }}
                                         />
                                     </CardActionArea>
                                 </Link>
                             </NextLink>
                         </Grid>
                         <Grid item xs={7}>
-                            <Box>
+                            <Box display='flex' flexDirection='column'>
                                 <Typography variant='body1'>{ product.title }</Typography>
-                                <Typography variant='body1'>Talla: <strong>M</strong></Typography>
-                                
+                                <Typography variant='body1'>Talla: <strong>{ product.size }</strong></Typography>
+
                                 {
-                                    editable
-                                    ? <ItemCounter />
-                                    : <Typography variant='h5'>3 items</Typography>
+                                    editable 
+                                    ? (
+                                        <ItemCounter 
+                                            currentValue={ product.quantity }
+                                            maxValue={ 10 } 
+                                            updateQuantity={ ( value ) => onNewCartQuantityValue(product as ICartProduct, value )}
+                                        />
+                                    )
+                                    : (
+                                        <Typography variant='h5'>{ product.quantity } { product.quantity > 1 ? 'productos':'producto' }</Typography>
+                                    )
                                 }
                                 
                             </Box>
                         </Grid>
                         <Grid item xs={2} display='flex' alignItems='center' flexDirection='column'>
-                            <Typography variant='subtitle1'>{`$${product.price}`}</Typography>
+                            <Typography variant='subtitle1'>{ `$${ product.price }` }</Typography>
+                            
                             {
                                 editable && (
-                                    <Button variant='text' color="secondary">
+                                    <Button 
+                                        variant='text' 
+                                        color='secondary' 
+                                        onClick={ () => removeCartProduct( product as ICartProduct ) }
+                                    >
                                         Remover
                                     </Button>
                                 )
